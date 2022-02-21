@@ -18,6 +18,7 @@ from functools import partial
 
 import pytorch_lightning as pl
 import torch
+import torchmetrics
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -49,8 +50,8 @@ class ExplainNLP(pl.LightningModule):
         self.model = ExplainableModel(self.bert_dir)
         self.tokenizer = AutoTokenizer.from_pretrained(self.bert_dir)
         self.loss_fn = CrossEntropyLoss()
-        self.train_acc = pl.metrics.Accuracy()
-        self.valid_acc = pl.metrics.Accuracy()
+        self.train_acc = torchmetrics.Accuracy()
+        self.valid_acc = torchmetrics.Accuracy()
         self.output = []
         self.check_data = []
 
