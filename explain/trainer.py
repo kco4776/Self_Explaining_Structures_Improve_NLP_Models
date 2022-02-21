@@ -153,14 +153,10 @@ class ExplainNLP(pl.LightningModule):
 
     def get_dataloader(self, prefix="train") -> DataLoader:
         """get training dataloader"""
-        if prefix == "train":
-            dataset = NLIDataset(self.args.train_data_dir,
-                                 self.bert_dir,
-                                 self.args.max_length)
-        elif prefix == "dev":
-            dataset = NLIDataset(self.args.dev_data_dir,
-                                 self.bert_dir,
-                                 self.args.max_length)
+        dataset = NLIDataset(self.args.data_dir,
+                             prefix,
+                             self.bert_dir,
+                             self.args.max_length)
 
         dataloader = DataLoader(
             dataset=dataset,
@@ -201,8 +197,7 @@ def get_parser():
     parser.add_argument("--warmup_steps", default=0, type=int, help="warmup steps")
     parser.add_argument("--use_memory", action="store_true", help="load dataset to memory to accelerate.")
     parser.add_argument("--max_length", default=512, type=int, help="max length of dataset")
-    parser.add_argument("--train_data_dir", required=True, type=str, help="train data path")
-    parser.add_argument("--dev_data_dir", required=True, type=str, help="train data path")
+    parser.add_argument("--data_dir", required=True, type=str, help="train data path")
     parser.add_argument("--save_path", required=True, type=str, help="path to save checkpoints")
     parser.add_argument("--save_topk", default=5, type=int, help="save topk checkpoint")
     parser.add_argument("--checkpoint_path", type=str, help="checkpoint path on test step")
