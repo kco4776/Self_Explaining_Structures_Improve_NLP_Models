@@ -10,7 +10,7 @@
 """
 import torch
 from torch import nn
-from transformers.modeling_roberta import RobertaModel, RobertaConfig
+from transformers import AutoModel, AutoConfig
 
 from datasets.collate_functions import collate_to_max_length
 
@@ -18,8 +18,9 @@ from datasets.collate_functions import collate_to_max_length
 class ExplainableModel(nn.Module):
     def __init__(self, bert_dir):
         super().__init__()
-        self.bert_config = RobertaConfig.from_pretrained(bert_dir, output_hidden_states=False)
-        self.intermediate = RobertaModel.from_pretrained(bert_dir)
+        self.bert_config = AutoConfig.from_pretrained(bert_dir, output_hidden_states=False)
+        self.intermediate = AutoModel.from_pretrained(bert_dir)
+        self.intermediate.config.num_labels = 3
         self.span_info_collect = SICModel(self.bert_config.hidden_size)
         self.interpretation = InterpretationModel(self.bert_config.hidden_size)
         self.output = nn.Linear(self.bert_config.hidden_size, self.bert_config.num_labels)
@@ -81,28 +82,3 @@ class InterpretationModel(nn.Module):
         # weight average span representation to get H
         H = (a_ij.unsqueeze(-1) * h_ij).sum(dim=1)  # (bs, hidden_size)
         return H, a_ij
-
-
-def main():
-    # data
-    input_id_1 = torch.LongTensor([0, 4, 5, 6, 7, 2])
-    input_id_2 = torch.LongTensor([0, 4, 5, 2])
-    input_id_3 = torch.LongTensor([0, 4, 2])
-    batch = [(input_id_1, torch.LongTensor([1]), torch.LongTensor([6])),
-             (input_id_2, torch.LongTensor([1]), torch.LongTensor([4])),
-             (input_id_3, torch.LongTensor([1]), torch.LongTensor([3]))]
-
-    output = collate_to_max_length(batch=batch, fill_values=[1, 0, 0])
-    input_ids, labels, length, start_indexs, end_indexs, span_masks = output
-
-    # model
-    bert_path = "/data/nfsdata2/sunzijun/loop/roberta-base"
-    model = ExplainableModel(bert_path)
-    print(model)
-
-    output = model(input_ids, start_indexs, end_indexs, span_masks)
-    print(output)
-
-
-if __name__ == '__main__':
-    main()

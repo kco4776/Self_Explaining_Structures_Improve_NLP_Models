@@ -27,7 +27,7 @@ from transformers.modeling_roberta import RobertaForSequenceClassification
 
 from datasets.collate_functions import collate_to_max_length
 from datasets.sst_dataset import SSTDataset
-from datasets.snli_dataset import SNLIDataset
+from datasets.nli_dataset import SNLIDataset
 from utils.radom_seed import set_random_seed
 
 set_random_seed(0)

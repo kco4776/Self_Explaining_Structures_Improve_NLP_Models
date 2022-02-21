@@ -12,6 +12,8 @@
 import argparse
 import json
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from functools import partial
 
 import pytorch_lightning as pl
@@ -22,11 +24,10 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import functional as F
 from torch.nn.modules import CrossEntropyLoss
 from torch.utils.data.dataloader import DataLoader
-from transformers import AdamW, get_linear_schedule_with_warmup, RobertaTokenizer
+from transformers import AdamW, get_linear_schedule_with_warmup, AutoTokenizer
 
 from datasets.collate_functions import collate_to_max_length
-from datasets.sst_dataset import SSTDataset
-from datasets.snli_dataset import SNLIDataset
+from datasets.nli_dataset import NLIDataset
 from explain.model import ExplainableModel
 from utils.radom_seed import set_random_seed
 
@@ -46,7 +47,7 @@ class ExplainNLP(pl.LightningModule):
             self.save_hyperparameters(args)
         self.bert_dir = args.bert_path
         self.model = ExplainableModel(self.bert_dir)
-        self.tokenizer = RobertaTokenizer.from_pretrained(self.bert_dir)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.bert_dir)
         self.loss_fn = CrossEntropyLoss()
         self.train_acc = pl.metrics.Accuracy()
         self.valid_acc = pl.metrics.Accuracy()
@@ -149,16 +150,11 @@ class ExplainNLP(pl.LightningModule):
         self.log('valid_loss', loss)
         return loss
 
-    def get_dataloader(self, prefix="train") -> DataLoader:
+    def get_dataloader(self) -> DataLoader:
         """get training dataloader"""
-        if self.args.task == 'snli':
-            dataset = SNLIDataset(directory=self.args.data_dir, prefix=prefix,
-                                  bert_path=self.bert_dir,
-                                  max_length=self.args.max_length)
-        else:
-            dataset = SSTDataset(directory=self.args.data_dir, prefix=prefix,
-                                 bert_path=self.bert_dir,
-                                 max_length=self.args.max_length)
+        dataset = NLIDataset(self.args.data_dir,
+                             self.bert_dir,
+                             self.args.max_length)
         dataloader = DataLoader(
             dataset=dataset,
             batch_size=self.args.batch_size,
