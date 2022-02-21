@@ -18,9 +18,8 @@ from datasets.collate_functions import collate_to_max_length
 class ExplainableModel(nn.Module):
     def __init__(self, bert_dir):
         super().__init__()
-        self.bert_config = AutoConfig.from_pretrained(bert_dir, output_hidden_states=False)
+        self.bert_config = AutoConfig.from_pretrained(bert_dir, output_hidden_states=False, num_labels=3)
         self.intermediate = AutoModel.from_pretrained(bert_dir)
-        self.intermediate.config.num_labels = 3
         self.span_info_collect = SICModel(self.bert_config.hidden_size)
         self.interpretation = InterpretationModel(self.bert_config.hidden_size)
         self.output = nn.Linear(self.bert_config.hidden_size, self.bert_config.num_labels)
