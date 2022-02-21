@@ -29,7 +29,7 @@ class ExplainableModel(nn.Module):
         # generate mask
         attention_mask = (input_ids != 1).long()
         # intermediate layer
-        hidden_states, first_token = self.intermediate(input_ids, attention_mask=attention_mask)  # output.shape = (bs, length, hidden_size)
+        hidden_states = self.intermediate(input_ids, attention_mask=attention_mask).last_hidden_state  # output.shape = (bs, length, hidden_size)
         # span info collecting layer(SIC)
         h_ij = self.span_info_collect(hidden_states, start_indexs, end_indexs)
         # interpretation layer
