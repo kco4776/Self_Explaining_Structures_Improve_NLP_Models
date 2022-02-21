@@ -237,7 +237,6 @@ def train(args):
 
     trainer = Trainer.from_argparse_args(args,
                                          checkpoint_callback=checkpoint_callback,
-                                         distributed_backend="ddp",
                                          logger=logger)
     trainer.fit(model)
 
