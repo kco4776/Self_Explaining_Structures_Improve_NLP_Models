@@ -217,7 +217,8 @@ def train(args):
     model = ExplainNLP(args)
 
     checkpoint_callback = ModelCheckpoint(
-        filepath=os.path.join(args.save_path, '{epoch}-{valid_loss:.4f}-{valid_acc_end:.4f}'),
+        dirpath=args.save_path,
+        filename='{epoch}-{valid_loss:.4f}-{valid_acc_end:.4f}',
         save_top_k=args.save_topk,
         save_last=True,
         monitor="valid_acc_end",
