@@ -245,7 +245,7 @@ def evaluate(args):
     model = ExplainNLP(args)
     checkpoint = torch.load(args.checkpoint_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['state_dict'])
-    trainer = Trainer.from_argparse_args(args, distributed_backend="ddp")
+    trainer = Trainer.from_argparse_args(args)
     trainer.test(model)
 
 

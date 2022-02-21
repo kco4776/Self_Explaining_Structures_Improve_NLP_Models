@@ -24,14 +24,13 @@ class NLIDataset(Dataset):
         self.max_length = max_length
         label_map = {"contradiction": 0, 'neutral': 1, "entailment": 2}
         with open(os.path.join(directory, 'klue-nli-v1.1_' + prefix + '.json'), 'r', encoding='utf8') as f:
-            lines = f.readlines()
+            lines = json.load(f)
         self.result = []
         for line in lines:
-            line_json = json.loads(line)
-            if line_json['gold_label'] not in label_map:
+            if line['gold_label'] not in label_map:
                 # print(line_json['gold_label'])
                 continue
-            self.result.append((line_json['premise'], line_json['hypothesis'], label_map[line_json['gold_label']]))
+            self.result.append((line['premise'], line['hypothesis'], label_map[line['gold_label']]))
         self.tokenizer = AutoTokenizer.from_pretrained(bert_path)
 
     def __len__(self):
